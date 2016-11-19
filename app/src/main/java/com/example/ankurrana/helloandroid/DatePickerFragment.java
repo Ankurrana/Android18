@@ -9,6 +9,7 @@ import android.util.Log;
 import android.widget.DatePicker;
 
 import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Created by Ankur.Rana on 11/16/2016.
@@ -46,7 +47,11 @@ public class DatePickerFragment extends DialogFragment implements DatePickerDial
     @Override
     public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
         String date = Integer.toString(i) + "-" + Integer.toString(i1+1) + "-" + Integer.toString(i2);
-        this.mListener.onComplete(date);
+        final Calendar d = Calendar.getInstance();
+        d.set(i,i1,i2);
+
+        this.mListener.onComplete(date); // in format yyyy-MM-DD
+
     }
 
 

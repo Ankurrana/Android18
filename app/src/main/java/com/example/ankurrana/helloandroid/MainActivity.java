@@ -2,6 +2,7 @@ package com.example.ankurrana.helloandroid;
 
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import com.android.volley.*;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.BasicNetwork;
@@ -35,19 +38,25 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     private EditText email, password;
     private Button loginButton;
-    private TextView info;
     private RequestQueue rq;
+    private TextView message,registerLink;
+    private Context context;
+    private String loginUrl = Globals.getInstance().getInstance().getAPIServer()+ "/token";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        info = (TextView) findViewById(R.id.info);
-//        info.setText("Find Info here!");
-        loginButton = (Button)findViewById(R.id.login);
+        context = this;
 
+        setTitle("TaskKeeper");
+        message = (TextView) findViewById(R.id.message);
+        loginButton = (Button)findViewById(R.id.login);
+        registerLink = (TextView) findViewById(R.id.register);
+        registerLink.setOnClickListener(this);
         email = (EditText) findViewById(R.id.email);
         password = (EditText) findViewById(R.id.password);
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -61,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         email.setText("ankurrana");
         password.setText("ankurrana");
         loginButton.performClick();
+
     }
 
     private void openTasksListActivity(String token){
@@ -72,9 +82,24 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Intent i = getIntent();
+        Bundle b = i.getExtras();
+        if( b!=null && b.containsKey("message") ) {
+            Context context = getApplicationContext();
+            CharSequence text = b.getString("message");
+            int duration = Toast.LENGTH_SHORT;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+            getIntent().getExtras().clear();
+        }
+    }
 
     private void login(String username, String password){
-        String url ="http://taskkeeper.awesomeankur.com/api/token";
+        String url = this.loginUrl;
         Map<String, String> params = new HashMap<String, String>();
         params.put("username",username);
         params.put("password",password);
@@ -89,9 +114,9 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     String token =  response.getString("token");
                     openTasksListActivity(token);
-                    info.setText(token);
+                    //info.setText(token);
                 } catch (JSONException e) {
-                    info.setText("Incorrect Credentials Provided!");
+                    message.setText("Incorrect Credentials");
                 }
                 Log.i("Success","Login Successfull");
             }
@@ -99,6 +124,7 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        message.setText("Unable to communicate server");
                         Log.i("Failed","Login Failed");
                     }
                 });
@@ -106,4 +132,9 @@ public class MainActivity extends AppCompatActivity {
         queue.add(jsonObjectRequest);
     }
 
+    @Override
+    public void onClick(View view) {
+        Intent intent = new Intent(context,RegisterActivity.class);
+        startActivity(intent);
+    }
 }

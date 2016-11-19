@@ -24,7 +24,7 @@ public class TaskAPIService {
     private Context AppContext;
     private RequestQueue queue;
     private String token;
-    private final String BaseURL = "http://taskkeeper.awesomeankur.com/api/tasks";
+    private final String BaseURL = Globals.getInstance().getInstance().getAPIServer()+ "/tasks";
 
     TaskAPIService(Context a,String token){
         AppContext = a;
@@ -49,9 +49,39 @@ public class TaskAPIService {
         queue.add(jsonArrayRequest);
     }
 
+
+
     public void  getOne(String key,Response.Listener<JSONObject> Handler, Response.ErrorListener errorHandler){
         String URL = BaseURL + "/" + key;
         JsonObjectRequest jor = new JsonObjectRequest(Request.Method.GET,URL,null,Handler,errorHandler){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return setTokenInHeaders();
+            }
+        };
+        queue.add(jor);
+    }
+
+    public void save(Task task,Response.Listener<JSONObject> Handler, Response.ErrorListener errorHandler){
+        String URL = BaseURL;
+        Map<String, String> mParams  = new HashMap<String, String>();
+
+        mParams.put("description",task.Description());
+        mParams.put("schedule",task.scheduleString());
+
+        JSONObject param = new JSONObject(mParams);
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.POST,URL,param,Handler,errorHandler){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                return setTokenInHeaders();
+            }
+        };
+        queue.add(jor);
+    }
+
+    public void delete(String key,Response.Listener<JSONObject> Handler, Response.ErrorListener errHandler){
+        String URL = BaseURL + "/" + key;
+        JsonObjectRequest jor = new JsonObjectRequest(Request.Method.DELETE,URL,null,Handler,errHandler){
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 return setTokenInHeaders();

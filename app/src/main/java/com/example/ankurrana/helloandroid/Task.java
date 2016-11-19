@@ -9,6 +9,7 @@ import java.util.Date;
 public class Task {
     private String description,status,owner,key;
     private Date completedAt;
+    private String scheduleString;
 
     Task(String _key,String _description){
         this.key = _key;
@@ -19,6 +20,14 @@ public class Task {
         this.status = _status;
         this.owner = _owner;
         this.key = _key;
+    }
+    Task(String _description,String schedule,int k){
+        this.description = _description;
+        this.scheduleString = schedule;
+    }
+
+    String scheduleString(){
+            return this.scheduleString;
     }
 
     String Key(){
